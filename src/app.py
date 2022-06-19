@@ -9,7 +9,7 @@ from QuoteEngine import Ingestor, QuoteModel
 
 app = Flask(__name__)
 
-meme = MemeEngine('./static.jpg')
+meme = MemeEngine('./static')
 
 
 def setup():
@@ -82,11 +82,8 @@ def meme_post():
         img.write(response.content)
 
     quote = QuoteModel(body, author)
-    meme = MemeEngine('./tmp.jpg')
     path = meme.make_meme(file, quote.body, quote.author)
-
-    if file:
-        os.remove(file)
+    os.remove(file)
 
     return render_template('meme.html', path=path)
 
