@@ -1,6 +1,7 @@
 import os
 import random
-from PIL import Image, ImageDraw
+
+from PIL import Image, ImageDraw, UnidentifiedImageError
 from random import randint
 
 
@@ -19,17 +20,19 @@ class MemeEngine:
             self.output_dir,
             f"meme-{random.randint(0, 10000000)}.jpg"
         )
+        try:
+            with Image.open(img_path) as im:
+                resize_percentage = im.width // width
+                height = im.height * resize_percentage
+                im.resize((width, height))
 
-        with Image.open(img_path) as im:
-            resize_percentage = im.width // width
-            height = im.height * resize_percentage
-            im.resize((width, height))
+                draw = ImageDraw.Draw(im)
+                width = randint(0, im.width)
+                height = randint(0, im.height)
+                draw.text((width, height), f'{text} - {author}')
 
-            draw = ImageDraw.Draw(im)
-            width = randint(0, im.width)
-            height = randint(0, im.height)
-            draw.text((width, height), f'{text} - {author}')
-
-            im.save(out_file, 'PNG')
+                im.save(out_file, 'PNG')
+        except UnidentifiedImageError:
+            return 'Image not found!'
 
         return out_file

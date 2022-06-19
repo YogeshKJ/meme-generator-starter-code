@@ -75,7 +75,12 @@ def meme_post():
     image_url = request.form.get('image_url')
     author = request.form.get('author')
     body = request.form.get('body')
-    response = requests.get(image_url)
+    try:
+        response = requests.get(image_url)
+    except requests.ConnectionError:
+        return "Oops! Seems like there was an error. Please check the url and try again."
+    except Exception as e:
+        return f'Oops! Something went wrong.\n {e}'
 
     file = './_data/photos/dog/tmp.jpg'
     with open(file, 'wb') as img:
@@ -83,7 +88,9 @@ def meme_post():
 
     quote = QuoteModel(body, author)
     path = meme.make_meme(file, quote.body, quote.author)
-    os.remove(file)
+    if path == 'Image not found!':
+        os.remove(file)
+        return 'Image not found!'
 
     return render_template('meme.html', path=path)
 
